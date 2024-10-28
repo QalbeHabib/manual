@@ -12,7 +12,7 @@ on:
       api_url:
         description: "API URL for deployment"
         required: true
-        default: "https://dev-api.degenmarkets.com"
+        default: "https://dev-api.qalbehabib.com"
       version:
         description: "Version to deployment"
         required: true
