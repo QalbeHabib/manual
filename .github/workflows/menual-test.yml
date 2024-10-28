@@ -6,6 +6,8 @@ on:
       env_name:
         description: "Environment name"
         default: "dev"
+        type: choice
+        options: ["dev"]
 
 jobs:
   lint:
