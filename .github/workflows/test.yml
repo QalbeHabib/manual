@@ -12,7 +12,7 @@ on:
       api_url:
         description: "API URL for deployment"
         required: true
-        default: "https://api.degenmarkets.com"
+        default: "https://api.qalbehabib.com"
 
 jobs:
   manual-deploy:
@@ -52,7 +52,7 @@ jobs:
 
           # Attempt to assign the alias and capture any errors
           set -o pipefail
-          vercel alias set $DEPLOYMENT_URL ${{ github.event.inputs.env_name }}.degenmarkets.com --token $VERCEL_TOKEN || {
+          vercel alias set $DEPLOYMENT_URL ${{ github.event.inputs.env_name }}.qalbehabib.com --token $VERCEL_TOKEN || {
             echo "Failed to set alias. Check domain permissions."
             exit 1
           }
