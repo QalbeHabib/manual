@@ -7,6 +7,8 @@ on:
         description: "Environment name (e.g., dev, staging)"
         required: true
         default: "dev"
+        type: choice
+        options: ["dev", "staging"]
       api_url:
         description: "API URL for deployment"
         required: true
