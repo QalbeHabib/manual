@@ -1,4 +1,4 @@
-name: Deploy to Vercel
+name: Deploy to Dev
 
 on:
   workflow_dispatch:
@@ -12,10 +12,7 @@ on:
       api_url:
         description: "API URL for deployment"
         required: true
-        default: "https://api.qalbehabib.com"
-      helius_url:
-        description: "Helius URL for deployment"
-        required: true
+        default: "https://api.degenmarkets.com"
 
 jobs:
   manual-deploy:
@@ -41,19 +38,21 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           API_URL: ${{ github.event.inputs.api_url }}
-          HELIUS_URL: ${{ github.event.inputs.helius_url }}
+          HELIUS_URL: ${{ secrets.DEV_HELIUS_URL }}
+
         run: |
           npm install -g vercel
 
           # Deploy to Vercel and capture the deployment URL
-          DEPLOYMENT_URL=$(vercel --prod --token $VERCEL_TOKEN --scope $VERCEL_ORG_ID --yes \
+
+          DEPLOYMENT_URL=$(vercel --prod --token $VERCEL_TOKEN --scope $VERCEL_ORG_ID --confirm \
             --env API_URL=$API_URL --env HELIUS_URL=$HELIUS_URL | tee deployment.log | grep -o 'https:\/\/[a-zA-Z0-9.-]*\.vercel\.app')
 
           echo "Primary Deployment URL: $DEPLOYMENT_URL"
 
           # Attempt to assign the alias and capture any errors
           set -o pipefail
-          vercel alias set $DEPLOYMENT_URL ${{ github.event.inputs.env_name }}.qalbehabib.com --token $VERCEL_TOKEN || {
+          vercel alias set $DEPLOYMENT_URL ${{ github.event.inputs.env_name }}.degenmarkets.com --token $VERCEL_TOKEN || {
             echo "Failed to set alias. Check domain permissions."
             exit 1
           }
