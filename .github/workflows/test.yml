@@ -51,5 +51,9 @@ jobs:
 
           echo "Primary Deployment URL: $DEPLOYMENT_URL"
 
-          # Set custom alias for the deployment
-          vercel alias set $DEPLOYMENT_URL ${{ github.event.inputs.env_name }}.qalbehabib.com --token $VERCEL_TOKEN
+          # Attempt to assign the alias and capture any errors
+          set -o pipefail
+          vercel alias set $DEPLOYMENT_URL ${{ github.event.inputs.env_name }}.qalbehabib.com --token $VERCEL_TOKEN || {
+            echo "Failed to set alias. Check domain permissions."
+            exit 1
+          }
