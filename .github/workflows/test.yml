@@ -44,4 +44,12 @@ jobs:
           HELIUS_URL: ${{ github.event.inputs.helius_url }}
         run: |
           npm install -g vercel
-          vercel --prod --token $VERCEL_TOKEN --scope $VERCEL_ORG_ID --confirm --env API_URL=$API_URL --env HELIUS_URL=$HELIUS_URL --prod-url ${{ github.event.inputs.env_name }}.qalbehabib.com | tee deployment.log
+
+          # Deploy to Vercel and capture the deployment URL
+          DEPLOYMENT_URL=$(vercel --prod --token $VERCEL_TOKEN --scope $VERCEL_ORG_ID --confirm \
+            --env API_URL=$API_URL --env HELIUS_URL=$HELIUS_URL | tee deployment.log | grep -o 'https:\/\/[a-zA-Z0-9.-]*\.vercel\.app')
+
+          echo "Primary Deployment URL: $DEPLOYMENT_URL"
+
+          # Set a custom alias based on the environment name provided in the workflow dispatch input
+          vercel alias set $DEPLOYMENT_URL ${{ github.event.inputs.env_name }}.qalbehabib.com --token $VERCEL_TOKEN
