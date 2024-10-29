@@ -51,25 +51,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Remove .vercel directory
-        run: rm -rf .vercel
-
       - name: Build project
         run: npm run build
-
-      - name: Check Domain Permissions
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-        run: |
-          # Check if the domain is owned by the organization
-          status=$(vercel domains list --token $VERCEL_TOKEN --scope $VERCEL_ORG_ID --json | jq -r '.[] | select(.name == "dev.qalbehabib.com") | .verification.status')
-          if [ "$status" = "VALID" ]; then
-            echo "Domain permissions are valid. Proceeding with alias assignment."
-          else
-            echo "Domain permissions are not valid. Unable to set alias."
-            exit 1
-          fi
 
       - name: Deploy to Vercel
         env:
