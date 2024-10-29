@@ -64,7 +64,7 @@ jobs:
         run: |
           npm install -g vercel
           # Deploy to Vercel and capture the deployment URL
-          DEPLOYMENT_URL=$(vercel --token $VERCEL_TOKEN --scope $VERCEL_ORG_ID --yes --env NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL --env NEXT_PUBLIC_HELIUS_URL=$NEXT_PUBLIC_HELIUS_URL | tee deployment.log | grep -o 'https:\/\/[a-zA-Z0-9.-]*\.vercel\.app')
+          DEPLOYMENT_URL=$(vercel --prod --token $VERCEL_TOKEN --scope $VERCEL_ORG_ID --yes --env NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL --env NEXT_PUBLIC_HELIUS_URL=$NEXT_PUBLIC_HELIUS_URL | tee deployment.log | grep -o 'https:\/\/[a-zA-Z0-9.-]*\.vercel\.app')
           echo "Primary Deployment URL: $DEPLOYMENT_URL"
 
           # Attempt to assign the alias and capture any errors
