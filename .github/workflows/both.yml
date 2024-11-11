@@ -1,0 +1,83 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - "*"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Linting with ESLint
+        run: npm run lint
+
+  deploy:
+    needs: lint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [development, production]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Remove .vercel directory
+        run: rm -rf .vercel
+
+      - name: Create env file
+        run: echo "NEXT_PUBLIC_ENV=${{ matrix.environment }}" > .env
+
+      - name: Build project
+        run: npm run build
+
+      - name: Deploy to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          npm install -g vercel
+
+          # Check if the event is a push to main branch
+          if [ "${{ github.event_name }}" == "push" ] && [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            if [ "${{ matrix.environment }}" == "production" ]; then
+              # Production deployment
+              DEPLOYMENT_URL=$(vercel --prod --token $VERCEL_TOKEN | tee deployment.log | grep -o 'https:\/\/[a-zA-Z0-9.-]*\.vercel\.app')
+            elif [ "${{ matrix.environment }}" == "development" ]; then
+              # Deploy to development and set alias for dev
+              DEPLOYMENT_URL=$(vercel --token $VERCEL_TOKEN --scope $VERCEL_ORG_ID --yes | tee deployment.log | grep -o 'https:\/\/[a-zA-Z0-9.-]*\.vercel\.app')
+              vercel alias set $(echo $DEPLOYMENT_URL | sed 's|https\?://||') dev.degenmarkets.com --token $VERCEL_TOKEN --scope $VERCEL_ORG_ID || {
+                echo "Failed to set alias. Check domain permissions."
+                exit 1
+              }
+            fi
+          else
+            # For preview deployments (non-main branches)
+            DEPLOYMENT_URL=$(vercel --token $VERCEL_TOKEN --scope $VERCEL_ORG_ID | tee deployment.log | grep -o 'https:\/\/[a-zA-Z0-9.-]*\.vercel\.app')
+          fi
+
+          echo "-------------------Deployment successful!--------------------"
+          echo "Access your application at: $DEPLOYMENT_URL"
